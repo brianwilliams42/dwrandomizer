@@ -3,6 +3,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QMessageBox>
 #include <ctime>
 #define __STDC_FORMAT_MACROS
 #include <cinttypes>
@@ -17,6 +18,7 @@ CheckBox::CheckBox(const char flag, const QString &text, QWidget *parent) :
     this->flag = flag;
     this->conflicts = "";
     this->requires = "";
+    this->flagoffset = -1;
 }
 
 CheckBox::CheckBox(const char flag, const QString &text,
@@ -26,6 +28,18 @@ CheckBox::CheckBox(const char flag, const QString &text,
     this->flag = flag;
     this->requires = requires;
     this->conflicts = conflicts;
+    this->flagoffset = -1;
+}
+
+CheckBox::CheckBox(const char flag, const QString &text,
+        const QString requires, const QString conflicts, QWidget *parent,
+        int flagoffset) :
+        QCheckBox(text, parent)
+{
+    this->flag = flag;
+    this->requires = requires;
+    this->conflicts = conflicts;
+    this->flagoffset = flagoffset;
 }
 
 char CheckBox::getFlag()
@@ -36,16 +50,46 @@ char CheckBox::getFlag()
     return NO_FLAG;
 }
 
-void CheckBox::stateChanged(int state)
+bool CheckBox::readFlag(char* flags)
 {
-    super::stateChanged(state);
+  if (this->flagoffset > -1) {
+  int flagindex = this->flagoffset/8;
+  int iso = ((0x3 << (this->flagoffset % 8)) & flags[flagindex]) >> (this->flagoffset % 8);
+
+  
+  }
+}
+
+
+void CheckBox::writeFlag(char* flags)
+{
+  if (this->flagoffset > -1) {
+  int flagindex = this->flagoffset / 8;
+  int offset = this->flagoffset % 8;
+  char mask = 0x3 << offset;
+  
+  char newvalue = 0;
+  if (this->checkState() == Qt::Checked) {
+    newvalue = 1;
+  }
+  if (this->checkState() == Qt::PartiallyChecked) {
+    newvalue = 2;
+  }
+  flags[flagindex] = (flags[flagindex] & (~mask)) | (newvalue << offset);
+  
+
+  }
+
 }
 
 bool CheckBox::updateState(const QString flags)
 {
     bool checked = this->isEnabled() && flags.contains(this->flag);
 
-    this->setChecked(checked);
+    if (this->flagoffset > -1) {
+      if (this->checkState() == Qt::PartiallyChecked) {
+      }
+    }
     return checked;
 }
 

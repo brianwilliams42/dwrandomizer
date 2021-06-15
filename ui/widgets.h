@@ -29,8 +29,12 @@ public:
     CheckBox(const char flag, const QString &text, QWidget *parent = 0);
     CheckBox(const char flag, const QString &text,
         const QString requires, const QString conflicts, QWidget *parent);
-    void stateChanged(int state);
+    CheckBox(const char flag, const QString &text,
+        const QString requires, const QString conflicts, QWidget *parent,
+        int flagoffset);
     char getFlag();
+    void writeFlag(char* flags);
+    bool readFlag(char* flags);
     bool updateConflicts(const QString flags);
     bool updateState(QString flags);
 
@@ -38,6 +42,7 @@ private:
     char flag;
     QString conflicts;
     QString requires;
+    int flagoffset;
 
 };
 
