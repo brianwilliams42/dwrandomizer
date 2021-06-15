@@ -77,13 +77,7 @@ void CheckBox::writeFlag(char* flags)
 
 }
 
-bool CheckBox::updateState(const QString flags)
-{
-    bool checked = this->isEnabled() && flags.contains(this->flag);
-    return checked;
-}
-
-bool CheckBox::updateState(char *flags)
+bool CheckBox::updateState(const char *flags)
 {
   if (this->flagoffset > -1) {
     int flagindex = this->flagoffset/8;
@@ -104,34 +98,38 @@ bool CheckBox::updateConflicts(const char *flags)
 {
     bool enabled = true;
 
+    //this->updateState(flags);
+
+    // actually update with conflicts/requires
+
     return enabled;
 }
 
-bool CheckBox::updateConflicts(const QString flags)
-{
-    bool enabled = true;
-    bool checked = flags.contains(this->flag);
+// bool CheckBox::updateConflicts(const QString flags)
+// {
+//     bool enabled = true;
+//     bool checked = flags.contains(this->flag);
 
-    for (int i=0; i < this->requires.length(); i++) {
-        if (!flags.contains(this->requires.at(i))) {
-            enabled = false;
-            checked = false;
-            break;
-        }
-    }
-    if (enabled) {
-        for (int i=0; i < this->conflicts.length(); i++) {
-            if (flags.contains(this->conflicts.at(i))) {
-                enabled = false;
-                checked = false;
-                break;
-            }
-        }
-    }
-    //this->setEnabled(enabled);
-    //this->setChecked(checked);
-    return enabled;
-}
+//     for (int i=0; i < this->requires.length(); i++) {
+//         if (!flags.contains(this->requires.at(i))) {
+//             enabled = false;
+//             checked = false;
+//             break;
+//         }
+//     }
+//     if (enabled) {
+//         for (int i=0; i < this->conflicts.length(); i++) {
+//             if (flags.contains(this->conflicts.at(i))) {
+//                 enabled = false;
+//                 checked = false;
+//                 break;
+//             }
+//         }
+//     }
+//     //this->setEnabled(enabled);
+//     //this->setChecked(checked);
+//     return enabled;
+// }
 
 LevelComboBox::LevelComboBox(QWidget *parent) : QComboBox(parent)
 {

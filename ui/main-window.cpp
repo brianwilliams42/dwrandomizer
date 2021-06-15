@@ -250,61 +250,56 @@ QString MainWindow::getOptions()
     QList<CheckBox*>::const_iterator i;
     bool conflicts = false;
 
-    std::string flags = std::string() + this->levelSpeed->getFlag();
     for (i = this->options.begin(); i != this->options.end(); ++i) {
-        flags += (*i)->getFlag();
         (*i)->writeFlag(new_flags);
     }
 
     /* check for flag conflicts */
     for (i = this->options.begin(); i != this->options.end(); ++i) {
-        conflicts |= (*i)->updateConflicts(QString(flags.c_str()));
-        (*i)->updateConflicts(new_flags);
+        conflicts |= (*i)->updateConflicts(new_flags);
     }
 
     if (conflicts) { /* there were conflicts, so update flags */
-        flags.clear();
-        flags += this->levelSpeed->getFlag();
+        //flags += this->levelSpeed->getFlag();
         for (i = this->options.begin(); i != this->options.end(); ++i) {
-            flags += (*i)->getFlag();
             (*i)->writeFlag(new_flags);
         }
     }
 
-    std::sort(flags.begin(), flags.end());
-    std::replace(flags.begin(), flags.end(), NO_FLAG, '\0');
-    return QString(flags.c_str());
+    char output[20];
+    bscrypt_base64_encode(output, new_flags, 10);  
+    return QString(output);
 }
 
 void MainWindow::setOptions(QString flags)
 {
     QList<CheckBox*>::const_iterator i;
 
+    QByteArray text = flags.toLocal8Bit();
+    char *data = new char[text.size() + 1];
+    strcpy(data, text.data());
+    bscrypt_base64_decode(new_flags, data, text.size() + 1);
+
     for (i = this->options.begin(); i != this->options.end(); ++i) {
-        if ((*i)->updateConflicts(flags)) {
-            flags += (*i)->updateState(flags);
+        if ((*i)->updateConflicts(new_flags)) {
             (*i)->readFlag(new_flags);
         }
     }
 
     this->levelSpeed->updateState(flags);
     this->setFlags(this->getOptions());
+    delete [] data;
 }
 
 QString MainWindow::getFlags()
 {
     std::string flags = this->flags->text().toStdString();
-    std::sort(flags.begin(), flags.end());
     return QString::fromStdString(flags);
 }
 
 void MainWindow::setFlags(QString flags)
-{
-    char output[20];
-    bscrypt_base64_encode(output, new_flags, 10);    
-    this->flags->setText(QString(output));
-    this->statusBar()->showMessage(
-                QString("%1 (old flags)").arg(flags));
+{  
+    this->flags->setText(flags);
 }
 
 void MainWindow::handleCheckBox()
@@ -349,7 +344,6 @@ void MainWindow::handleButton()
                 "the ROM could not be created.");
     }
     this->saveConfig();
-    // this->seed->random();
 }
 
 bool MainWindow::saveConfig()

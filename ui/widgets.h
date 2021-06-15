@@ -35,10 +35,8 @@ public:
     char getFlag();
     void writeFlag(char *flags);
     bool readFlag(char *flags);
-    bool updateConflicts(const QString flags);
-    bool updateState(QString flags);
     bool updateConflicts(const char *flags);
-    bool updateState(char *flags);
+    bool updateState(const char *flags);
 
 private:
     char flag;
