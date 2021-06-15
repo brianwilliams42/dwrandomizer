@@ -33,10 +33,12 @@ public:
         const QString requires, const QString conflicts, QWidget *parent,
         int flagoffset);
     char getFlag();
-    void writeFlag(char* flags);
-    bool readFlag(char* flags);
+    void writeFlag(char *flags);
+    bool readFlag(char *flags);
     bool updateConflicts(const QString flags);
     bool updateState(QString flags);
+    bool updateConflicts(const char *flags);
+    bool updateState(char *flags);
 
 private:
     char flag;

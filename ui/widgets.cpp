@@ -52,12 +52,7 @@ char CheckBox::getFlag()
 
 bool CheckBox::readFlag(char* flags)
 {
-  if (this->flagoffset > -1) {
-  int flagindex = this->flagoffset/8;
-  int iso = ((0x3 << (this->flagoffset % 8)) & flags[flagindex]) >> (this->flagoffset % 8);
 
-  
-  }
 }
 
 
@@ -67,7 +62,7 @@ void CheckBox::writeFlag(char* flags)
   int flagindex = this->flagoffset / 8;
   int offset = this->flagoffset % 8;
   char mask = 0x3 << offset;
-  
+
   char newvalue = 0;
   if (this->checkState() == Qt::Checked) {
     newvalue = 1;
@@ -85,12 +80,31 @@ void CheckBox::writeFlag(char* flags)
 bool CheckBox::updateState(const QString flags)
 {
     bool checked = this->isEnabled() && flags.contains(this->flag);
-
-    if (this->flagoffset > -1) {
-      if (this->checkState() == Qt::PartiallyChecked) {
-      }
-    }
     return checked;
+}
+
+bool CheckBox::updateState(char *flags)
+{
+  if (this->flagoffset > -1) {
+    int flagindex = this->flagoffset/8;
+    int iso = ((0x3 << (this->flagoffset % 8)) & flags[flagindex]) >> (this->flagoffset % 8);
+
+    if (iso == 0) {
+      this->setCheckState(Qt::Unchecked);
+    } else if (iso == 1) {
+      this->setCheckState(Qt::PartiallyChecked);
+    } else if (iso == 2) {
+      this->setCheckState(Qt::Checked);
+    } 
+  }
+  return true;
+}
+
+bool CheckBox::updateConflicts(const char *flags)
+{
+    bool enabled = true;
+
+    return enabled;
 }
 
 bool CheckBox::updateConflicts(const QString flags)
@@ -114,8 +128,8 @@ bool CheckBox::updateConflicts(const QString flags)
             }
         }
     }
-    this->setEnabled(enabled);
-    this->setChecked(checked);
+    //this->setEnabled(enabled);
+    //this->setChecked(checked);
     return enabled;
 }
 

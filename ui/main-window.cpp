@@ -254,13 +254,12 @@ QString MainWindow::getOptions()
     for (i = this->options.begin(); i != this->options.end(); ++i) {
         flags += (*i)->getFlag();
         (*i)->writeFlag(new_flags);
-      //  (*i)->setCheckState(Qt::PartiallyChecked);
     }
 
     /* check for flag conflicts */
     for (i = this->options.begin(); i != this->options.end(); ++i) {
         conflicts |= (*i)->updateConflicts(QString(flags.c_str()));
-    //    (*i)->setCheckState(Qt::PartiallyChecked);
+        (*i)->updateConflicts(new_flags);
     }
 
     if (conflicts) { /* there were conflicts, so update flags */
@@ -268,6 +267,7 @@ QString MainWindow::getOptions()
         flags += this->levelSpeed->getFlag();
         for (i = this->options.begin(); i != this->options.end(); ++i) {
             flags += (*i)->getFlag();
+            (*i)->writeFlag(new_flags);
         }
     }
 
@@ -300,11 +300,11 @@ QString MainWindow::getFlags()
 
 void MainWindow::setFlags(QString flags)
 {
-    this->flags->setText(flags);
     char output[20];
     bscrypt_base64_encode(output, new_flags, 10);    
+    this->flags->setText(QString(output));
     this->statusBar()->showMessage(
-                QString("%1 (new flags)").arg(QString(output)));
+                QString("%1 (old flags)").arg(flags));
 }
 
 void MainWindow::handleCheckBox()
