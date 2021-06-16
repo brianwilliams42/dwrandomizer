@@ -26,19 +26,15 @@ class CheckBox : public QCheckBox {
 
 public:
     typedef QCheckBox super;
-    CheckBox(const char flag, const QString &text, QWidget *parent = 0);
-    CheckBox(const char flag, const QString &text,
-        const QString requires, const QString conflicts, QWidget *parent);
-    CheckBox(const char flag, const QString &text,
+    CheckBox(const QString &text, QWidget *parent = 0);
+    CheckBox(const QString &text,
         const QString requires, const QString conflicts, QWidget *parent,
         int flagoffset);
-    char getFlag();
     void writeFlag(char *flags);
     bool updateConflicts(const char *flags);
     bool updateState(const char *flags);
 
 private:
-    char flag;
     QString conflicts;
     QString requires;
     int flagoffset;

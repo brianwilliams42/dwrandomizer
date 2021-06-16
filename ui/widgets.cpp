@@ -12,44 +12,23 @@
 #include "mt64.h"
 #include "widgets.h"
 
-CheckBox::CheckBox(const char flag, const QString &text, QWidget *parent) :
+CheckBox::CheckBox(const QString &text, QWidget *parent) :
         QCheckBox(text, parent)
 {
-    this->flag = flag;
     this->conflicts = "";
     this->requires = "";
     this->flagoffset = -1;
 }
 
-CheckBox::CheckBox(const char flag, const QString &text,
-        const QString requires, const QString conflicts, QWidget *parent) :
-        QCheckBox(text, parent)
-{
-    this->flag = flag;
-    this->requires = requires;
-    this->conflicts = conflicts;
-    this->flagoffset = -1;
-}
-
-CheckBox::CheckBox(const char flag, const QString &text,
+CheckBox::CheckBox(const QString &text,
         const QString requires, const QString conflicts, QWidget *parent,
         int flagoffset) :
         QCheckBox(text, parent)
 {
-    this->flag = flag;
     this->requires = requires;
     this->conflicts = conflicts;
     this->flagoffset = flagoffset;
 }
-
-char CheckBox::getFlag()
-{
-    if (this->isChecked()) {
-        return this->flag;
-    }
-    return NO_FLAG;
-}
-
 
 void CheckBox::writeFlag(char* flags)
 {
