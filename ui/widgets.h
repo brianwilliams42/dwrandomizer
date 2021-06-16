@@ -34,7 +34,6 @@ public:
         int flagoffset);
     char getFlag();
     void writeFlag(char *flags);
-    bool readFlag(char *flags);
     bool updateConflicts(const char *flags);
     bool updateState(const char *flags);
 
@@ -49,9 +48,12 @@ private:
 class LevelComboBox : public QComboBox {
 
 public:
-    LevelComboBox(QWidget *parent = 0);
-    bool updateState(QString flags);
-    char getFlag();
+    LevelComboBox(int flagoffset, QWidget *parent = 0);
+    bool updateState(const char *flags);
+    void writeFlag(char *flags);
+
+private:
+    int flagoffset;
 
 };
 

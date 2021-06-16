@@ -50,6 +50,7 @@ enum tabs {
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    this->new_flags = new char[10];
     this->setMinimumWidth(650);
     this->mainWidget = new QWidget();
     this->gameplayWidget = new QWidget();
@@ -61,7 +62,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->layout();
     this->initSlots();
     this->loadConfig();
-    this->new_flags = new char[10];
 }
 
 void MainWindow::initStatus() {
@@ -80,7 +80,7 @@ void MainWindow::initWidgets()
     this->outputDir = new DirEntry(this);
     this->seed = new SeedEntry(this);
     this->flags = new FlagEntry(this);
-    this->levelSpeed = new LevelComboBox(this);
+    this->levelSpeed = new LevelComboBox(52, this);
     this->goButton = new QPushButton("Randomize!", this);
     this->spriteSelect = new QComboBox(this);
     for (size_t i=0; i < sprite_count(); ++i) {
@@ -151,7 +151,7 @@ void MainWindow::layout()
     this->addOption('R', "Enable Menu Wrapping",               FEATURES,  0, 0, 16);
     this->addOption('D', "Enable Death Necklace",              FEATURES,  1, 0, 18);
     this->addOption('T', "Enable Torches In Battle",           FEATURES,  2, 0, 20);
-    this->addOption('b', "Big Swamp",                 "M", "", FEATURES,  0, 1, 22);
+    this->addOption('b', "Big Swamp",                 "M", "", FEATURES,  0, 1, BIG_SWAMP_OFFSET);
     this->addOption('r', "Repel in dungeons",                  FEATURES,  1, 1, 24);
     this->addOption('p', "Permanent repel",                    FEATURES,  2, 1, 26);
     this->addOption('y', "Permanent torch",                    FEATURES,  3, 1, 28);
@@ -171,7 +171,7 @@ void MainWindow::layout()
     this->addOption('s', "Short Charlock",                     SHORTCUTS, 3, 0, 48);
     this->addOption('k', "Don't Require Magic Keys",           SHORTCUTS, 4, 0, 50);
     this->addLabel("Leveling Speed",                           SHORTCUTS, 0, 1);
-    this->placeWidget(this->levelSpeed,                        SHORTCUTS, 1, 1); //52-55 
+    this->placeWidget(this->levelSpeed,                        SHORTCUTS, 1, 1); // bits 52-55 
 
     /* Challenge */
     this->addOption('u', "No Hurtmore",                        CHALLENGE, 0, 0, 56);
@@ -260,14 +260,14 @@ QString MainWindow::getOptions()
     }
 
     if (conflicts) { /* there were conflicts, so update flags */
-        //flags += this->levelSpeed->getFlag();
+        this->levelSpeed->writeFlag(new_flags);
         for (i = this->options.begin(); i != this->options.end(); ++i) {
             (*i)->writeFlag(new_flags);
         }
     }
 
     char output[20];
-    bscrypt_base64_encode(output, new_flags, 10);  
+    bscrypt_base64_encode(output, new_flags, 10); 
     return QString(output);
 }
 
@@ -275,18 +275,20 @@ void MainWindow::setOptions(QString flags)
 {
     QList<CheckBox*>::const_iterator i;
 
+    char temp_flags[10];
     QByteArray text = flags.toLocal8Bit();
     char *data = new char[text.size() + 1];
     strcpy(data, text.data());
-    bscrypt_base64_decode(new_flags, data, text.size() + 1);
+    bscrypt_base64_decode(temp_flags, data, text.size() + 1);
 
     for (i = this->options.begin(); i != this->options.end(); ++i) {
-        if ((*i)->updateConflicts(new_flags)) {
-            (*i)->readFlag(new_flags);
+        if ((*i)->updateConflicts(temp_flags)) {
+            (*i)->updateState(temp_flags);
         }
     }
 
-    this->levelSpeed->updateState(flags);
+    this->levelSpeed->updateState(temp_flags);
+    memcpy(new_flags, temp_flags, 10);
     this->setFlags(this->getOptions());
     delete [] data;
 }
@@ -321,16 +323,14 @@ void MainWindow::handleFlags()
 
 void MainWindow::handleButton()
 {
-    char flags[64], checksum[64];
-    QString flagStr = this->getFlags();
-    strncpy(flags, flagStr.toLatin1().constData(), 63);
+    char checksum[64];
 
     uint64_t seed = this->seed->getSeed();
     std::string inputFile = this->romFile->text().toLatin1().constData();
     std::string outputDir = this->outputDir->text().toLatin1().constData();
     std::string spriteName =
                 this->spriteSelect->currentText().toLatin1().constData();
-    uint64_t crc = dwr_randomize(inputFile.c_str(), seed, flags,
+    uint64_t crc = dwr_randomize(inputFile.c_str(), seed, this->new_flags,
                                  spriteName.c_str(), outputDir.c_str());
     if (crc) {
         sprintf(checksum, "Checksum: %016" PRIx64, crc);

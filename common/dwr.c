@@ -13,6 +13,7 @@
 #include "crc64.h"
 #include "mt64.h"
 #include "polyfit.h"
+#include "base64.h"
 
 const char *prg0sums[8] = {
       "6a50ce57097332393e0e8751924fd56456ef083c", /* Dragon Warrior (U) (PRG0) [!].nes      */
@@ -55,31 +56,6 @@ static int compare(const void *a, const void *b)
 }
 
 /**
- * Parses the flags string into a 64-bit integer, one bit indicating the status
- * of each flag.
- *
- * @param rom A dw_rom struct containing the rom data.
- * @param flags The flags from the user
- * @return A 64-bit integer containing the flags
- */
-static uint64_t parse_flags(dw_rom *rom, char *flags)
-{
-    int i, len;
-    char *order;
-
-    len = strlen(flags);
-    qsort(flags, len, sizeof(char), &compare);
-    rom->flags = 0;
-    for (i=0; i < len; i++) {
-        order = strchr(flag_order, flags[i]);
-        if (order) {
-            rom->flags |= UINT64_C(1) << (order - flag_order);
-        }
-    }
-    return rom->flags;
-}
-
-/**
  * Initializes the dw_rom struct
  *
  * @param rom An uninitialized dw_rom
@@ -87,7 +63,7 @@ static uint64_t parse_flags(dw_rom *rom, char *flags)
  * @param flags The flags received from the user.
  * @return A boolean indicating whether initialization was sucessful
  */
-BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags)
+BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags, char *final_flags)
 {
     FILE *input;
     int read;
@@ -109,7 +85,9 @@ BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags)
     fclose(input);
 
     rom->content = &rom->header[0x10];
-    rom->map.flags = parse_flags(rom, flags);
+    rom->original_flags = flags;
+    rom->flags = final_flags;
+    rom->map.flags = final_flags;
     /* subtract 0x9d5d from these pointers */
     rom->map.pointers = (uint16_t*)&rom->content[0x2653];
     rom->map.encoded = &rom->content[0x1d5d];
@@ -1226,7 +1204,7 @@ static uint8_t *pad_title_screen(uint8_t *pos, uint8_t *end, int reserved)
 static void update_title_screen(dw_rom *rom)
 {
     char *f, *fo, text[33];
-    uint64_t flags;
+    char *flags;
     uint8_t *pos, *end;
 
 //    pos = rom->title_text;
@@ -1234,7 +1212,7 @@ static void update_title_screen(dw_rom *rom)
     pos = &rom->content[0x3f26];
     end = &rom->content[0x3fb5];
     text[32] = '\0';
-    flags = rom->flags;
+    flags = rom->formatted_flags;
     f = text;
     fo = (char*)flag_order;
 
@@ -1250,15 +1228,15 @@ static void update_title_screen(dw_rom *rom)
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
 
     /* parse the flags back to a string */
-    while (flags) {
+/*     while (flags) {
         if (flags & 1) *(f++) = *fo;
         flags >>= 1;
         fo++;
         if (f - text >= 32) break;
     }
-    *f = '\0';
+    *f = '\0'; */
 
-    pos = center_title_text(pos, text);          /* flags */
+    //pos = center_title_text(pos, text);          /* flags */
     snprintf((char *)text, 33, "%"PRIu64, rom->seed);
 
     pos = pad_title_screen(pos, end, 15 + strlen(text)); /* blank line */
@@ -2025,7 +2003,64 @@ static void no_screen_flash(dw_rom *rom)
     vpatch(rom, 0x0db40,    1,  0x18);
 }
 
+/**
+ * Randomizes all the flags in the input flags and
+ * sets the randomized flags into final_flags.
+ * 
+ * Expects both pointers are initialized and same length
+ * and long enough to hold all the flags in the game.
+ */
+static void randomize_flags(const char *flags, char *final_flags)
+{
+  // MUST pull a random number for every possible random flag
+  // whether on or off, to keep repeatability for other flags
+  for (int i = 0; i < 72; i+=2) {
+    if (i >= 52 && i < 55) { // leveling speed
+      if (i == 52) { // Skip 54 of course
+        char leveling_flag = ((0x0F << (52 % 8)) & flags[52 / 8]) >> (52 % 8);
+        char mask = 0x0F << i % 8;
+        int temp_random = -1;
+        switch (leveling_flag) {
+            case 3:
+                temp_random = (int)mt_rand(1, 2);
+                break;
+            case 4:
+                temp_random = (int)mt_rand(0, 2);
+                break;
+            default:
+                (int)mt_rand(0, 1); // throwaway call
+        }
+        if (temp_random > -1) {
+            switch(temp_random) {
+                case 0:
+                  leveling_flag = 0x0;
+                  break;
+                case 1:
+                  leveling_flag = 0x1;
+                  break;
+                case 2:
+                  leveling_flag = 0x2;
+                  break;
+                default:
+                  break;
+            }
+        }
 
+        final_flags[i / 8] = (flags[i / 8] & (~mask)) | (leveling_flag << i % 8);
+      }
+    } else {
+      // This is a two-bit random flag
+      char random_bit = ((0x02 << (i % 8)) & final_flags[i / 8]) >> (i % 8);
+      int arg = (int) mt_rand(0, 1);
+      if (random_bit == 0x2) {
+        char mask = 0x03 << (i % 8);
+        char oof = 0x0;
+        if (arg == 1) { oof = 0x1; }
+        final_flags[i / 8] = (final_flags[i / 8] & (~mask)) | (oof << (i % 8));
+      }
+    }
+  }
+}
 
 /**
  * Writes the new rom out to disk.
@@ -2064,17 +2099,24 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     uint64_t crc;
     char output_file[1024];
 
+    char formatted_flags[20];
+    bscrypt_base64_encode(formatted_flags, flags, 10);
+
     snprintf(output_file, 1024, "%s/DWRando.%"PRIu64".%s.nes", output_dir, seed,
-            flags);
+            formatted_flags);
     printf("Using seed# %"PRIu64"\n", seed);
-    printf("Using flags %s\n", flags);
+    printf("Using flags %s\n", formatted_flags);
 
     mt_init(seed);
     dw_rom rom;
-    if (!dwr_init(&rom, input_file, flags)) {
+
+    char final_flags[10];
+    memcpy(final_flags, flags, 10);
+    randomize_flags(flags, final_flags);
+
+    if (!dwr_init(&rom, input_file, flags, final_flags)) {
         return 0;
     }
-    rom.seed = seed;
 
     /* Clear the unused code so we can make sure it's unused */
     memset(&rom.content[0xc288], 0xff, 0xc4f5 - 0xc288);

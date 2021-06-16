@@ -262,7 +262,7 @@ typedef struct {
 typedef struct {
     uint16_t *pointers;
     uint8_t *encoded;
-    uint64_t flags;
+    char *flags;
     dw_map_meta *meta;
     dw_warp *warps_from;
     dw_warp *warps_to;
@@ -279,7 +279,9 @@ typedef struct {
 typedef struct {
     uint8_t *header;
     uint8_t *content;
-    uint64_t flags;
+    char *original_flags;
+    char *flags;
+    char *formatted_flags;
     uint64_t seed;
     dw_map map;
     dw_stats *stats;

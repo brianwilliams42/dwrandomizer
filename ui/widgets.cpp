@@ -50,31 +50,23 @@ char CheckBox::getFlag()
     return NO_FLAG;
 }
 
-bool CheckBox::readFlag(char* flags)
-{
-
-}
-
 
 void CheckBox::writeFlag(char* flags)
 {
   if (this->flagoffset > -1) {
-  int flagindex = this->flagoffset / 8;
-  int offset = this->flagoffset % 8;
-  char mask = 0x3 << offset;
+    int flagindex = this->flagoffset / 8;
+    int offset = this->flagoffset % 8;
+    char mask = 0x3 << offset;
 
-  char newvalue = 0;
-  if (this->checkState() == Qt::Checked) {
-    newvalue = 1;
+    char newvalue = 0;
+    if (this->checkState() == Qt::Checked) {
+        newvalue = 1;
+    }
+    if (this->checkState() == Qt::PartiallyChecked) {
+        newvalue = 2;
+    }
+    flags[flagindex] = (flags[flagindex] & (~mask)) | (newvalue << offset);
   }
-  if (this->checkState() == Qt::PartiallyChecked) {
-    newvalue = 2;
-  }
-  flags[flagindex] = (flags[flagindex] & (~mask)) | (newvalue << offset);
-  
-
-  }
-
 }
 
 bool CheckBox::updateState(const char *flags)
@@ -85,9 +77,9 @@ bool CheckBox::updateState(const char *flags)
 
     if (iso == 0) {
       this->setCheckState(Qt::Unchecked);
-    } else if (iso == 1) {
-      this->setCheckState(Qt::PartiallyChecked);
     } else if (iso == 2) {
+      this->setCheckState(Qt::PartiallyChecked);
+    } else if (iso == 1) {
       this->setCheckState(Qt::Checked);
     } 
   }
@@ -98,7 +90,7 @@ bool CheckBox::updateConflicts(const char *flags)
 {
     bool enabled = true;
 
-    //this->updateState(flags);
+    this->updateState(flags);
 
     // actually update with conflicts/requires
 
@@ -131,38 +123,37 @@ bool CheckBox::updateConflicts(const char *flags)
 //     return enabled;
 // }
 
-LevelComboBox::LevelComboBox(QWidget *parent) : QComboBox(parent)
+LevelComboBox::LevelComboBox(int flagoffset, QWidget *parent) : QComboBox(parent)
 {
     this->addItem("Normal");
     this->addItem("Fast");
     this->addItem("Very Fast");
+    this->addItem("Random (Fast/Very Fast)");
+    this->addItem("Random (All)");
+    this->flagoffset = flagoffset;
 }
 
-char LevelComboBox::getFlag()
+void LevelComboBox::writeFlag(char *flags)
 {
-    switch(this->currentIndex()) {
-        case 1:
-           return 'F';
-        case 2:
-            return 'V';
-        default:
-            return NO_FLAG;
-    }
+  if (this->flagoffset > -1) {
+    int flagindex = this->flagoffset / 8;
+    int offset = this->flagoffset % 8;
+    char mask = 0x0F << offset;
+
+    char newvalue = this->currentIndex();
+    flags[flagindex] = (flags[flagindex] & (~mask)) | (newvalue << offset);
+  }
 }
 
-bool LevelComboBox::updateState(QString flags)
+bool LevelComboBox::updateState(const char *flags)
 {
-    if (flags.indexOf(QChar('F')) >= 0) {
-        this->setCurrentIndex(1);
-        return true;
-    } else {
-        if (flags.indexOf(QChar('V')) >= 0) {
-            this->setCurrentIndex(2);
-            return true;
-        }
-    }
-    this->setCurrentIndex(0);
-    return false;
+  if (this->flagoffset > -1) {
+    int flagindex = this->flagoffset / 8;
+    int iso = ((0x0F << (this->flagoffset % 8)) & flags[flagindex]) >> (this->flagoffset % 8);
+
+    this->setCurrentIndex(iso);
+  }
+  return true;
 }
 
 ButtonEntry::ButtonEntry(QWidget *parent) :
