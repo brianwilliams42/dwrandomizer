@@ -81,6 +81,7 @@ bool CheckBox::updateConflicts(const char *flags)
 //     bool enabled = true;
 //     bool checked = flags.contains(this->flag);
 
+       // If the required flag is off, then uncheck and disable
 //     for (int i=0; i < this->requires.length(); i++) {
 //         if (!flags.contains(this->requires.at(i))) {
 //             enabled = false;
@@ -88,6 +89,8 @@ bool CheckBox::updateConflicts(const char *flags)
 //             break;
 //         }
 //     }
+
+       // If any conflicts are on, then uncheck and disable
 //     if (enabled) {
 //         for (int i=0; i < this->conflicts.length(); i++) {
 //             if (flags.contains(this->conflicts.at(i))) {
@@ -114,24 +117,22 @@ LevelComboBox::LevelComboBox(int flagoffset, QWidget *parent) : QComboBox(parent
 
 void LevelComboBox::writeFlag(char *flags)
 {
-  if (this->flagoffset > -1) {
     int flagindex = this->flagoffset / 8;
     int offset = this->flagoffset % 8;
     char mask = 0x0F << offset;
 
     char newvalue = this->currentIndex();
     flags[flagindex] = (flags[flagindex] & (~mask)) | (newvalue << offset);
-  }
 }
 
 bool LevelComboBox::updateState(const char *flags)
 {
-  if (this->flagoffset > -1) {
-    int flagindex = this->flagoffset / 8;
-    int iso = ((0x0F << (this->flagoffset % 8)) & flags[flagindex]) >> (this->flagoffset % 8);
 
-    this->setCurrentIndex(iso);
-  }
+  int flagindex = this->flagoffset / 8;
+  int iso = ((0x0F << (this->flagoffset % 8)) & flags[flagindex]) >> (this->flagoffset % 8);
+
+  this->setCurrentIndex(iso);
+
   return true;
 }
 

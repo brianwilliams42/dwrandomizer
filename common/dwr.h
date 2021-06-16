@@ -99,6 +99,8 @@
 #define HEAL_HURT_B4_MORE(x)  (CHECK_ON_BIT(x->flags, HEAL_HURT_B4_MORE_OFFSET))
 #define RANDOMIZE_ZONES(x)    (CHECK_ON_BIT(x->flags, RANDOMIZE_ZONES_OFFSET))
 
+// These are drop-down checks that just so happens to have an exclusive bit
+// If it had 4+ options, this check needs to get more elaborate
 #define FAST_XP(x) (x->flags[52 / 8] & 1 << (52 % 8))
 #define VERY_FAST_XP(x) (x->flags[52 / 8] & 2 << (52 % 8))
 
@@ -113,6 +115,7 @@ extern "C" {
  * @param rom An uninitialized dw_rom
  * @param input_file The file to read the rom data from
  * @param flags The flags received from the user.
+ * @param final_flags The flags after randomization from the original flags.
  * @return A boolean indicating whether initialization was sucessful
  */
 BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags, char *final_flags);
