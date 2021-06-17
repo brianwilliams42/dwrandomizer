@@ -61,6 +61,7 @@
 #define RANDOMIZE_SHOPS_OFFSET 10
 #define HEAL_HURT_B4_MORE_OFFSET 8
 #define RANDOMIZE_ZONES_OFFSET 32
+#define XP_LEVEL_REQS_OFFSET 52
 
 #define CHECK_ON_BIT(flags, offset) (flags[offset / 8] & 1 << (offset % 8))
 
@@ -104,8 +105,8 @@
 
 // These are drop-down checks that just so happens to have an exclusive bit
 // If a dropdown has 4+ options, this check needs to get more elaborate
-#define FAST_XP(x) (x->flags[52 / 8] & 1 << (52 % 8))
-#define VERY_FAST_XP(x) (x->flags[52 / 8] & 2 << (52 % 8))
+#define FAST_XP(x) (x->flags[XP_LEVEL_REQS_OFFSET / 8] & 1 << (XP_LEVEL_REQS_OFFSET % 8))
+#define VERY_FAST_XP(x) (x->flags[XP_LEVEL_REQS_OFFSET / 8] & 2 << (XP_LEVEL_REQS_OFFSET % 8))
 
 
 #ifdef __cplusplus

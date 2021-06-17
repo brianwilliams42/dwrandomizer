@@ -80,7 +80,7 @@ void MainWindow::initWidgets()
     this->outputDir = new DirEntry(this);
     this->seed = new SeedEntry(this);
     this->flags = new FlagEntry(this);
-    this->levelSpeed = new LevelComboBox(52, this);
+    this->levelSpeed = new LevelComboBox(XP_LEVEL_REQS_OFFSET, this);
     this->goButton = new QPushButton("Randomize!", this);
     this->spriteSelect = new QComboBox(this);
     for (size_t i=0; i < sprite_count(); ++i) {
