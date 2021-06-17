@@ -8,7 +8,7 @@
 #include "build.h"
 #include "sprites.h"
 
-#define DWR_VERSION "2.2"
+#define DWR_VERSION "42.2"
 
 #ifdef  DWR_RELEASE
 #define VERSION DWR_VERSION
@@ -18,112 +18,96 @@
 #define VERSION DWR_VERSION " beta " BUILD
 #endif
 
-#define DEFAULT_FLAGS "CDFGMPRSTWZ"
+#define DEFAULT_FLAGS "VQQVAQABEAAAAAAA"
 #define CHEST_COUNT 31
 
-/** 64 bit versions of the randomization flags */
-#define FLAG_0 UINT64_C(0x0000000000000001)
-#define FLAG_1 UINT64_C(0x0000000000000002)
-#define FLAG_2 UINT64_C(0x0000000000000004)
-#define FLAG_3 UINT64_C(0x0000000000000008)
-#define FLAG_4 UINT64_C(0x0000000000000010)
-#define FLAG_5 UINT64_C(0x0000000000000020)
-#define FLAG_6 UINT64_C(0x0000000000000040)
-#define FLAG_7 UINT64_C(0x0000000000000080)
-#define FLAG_8 UINT64_C(0x0000000000000100)
-#define FLAG_9 UINT64_C(0x0000000000000200)
-#define FLAG_A UINT64_C(0x0000000000000400)
-#define FLAG_B UINT64_C(0x0000000000000800)
-#define FLAG_C UINT64_C(0x0000000000001000)
-#define FLAG_D UINT64_C(0x0000000000002000)
-#define FLAG_E UINT64_C(0x0000000000004000)
-#define FLAG_F UINT64_C(0x0000000000008000)
-#define FLAG_G UINT64_C(0x0000000000010000)
-#define FLAG_H UINT64_C(0x0000000000020000)
-#define FLAG_I UINT64_C(0x0000000000040000)
-#define FLAG_J UINT64_C(0x0000000000080000)
-#define FLAG_K UINT64_C(0x0000000000100000)
-#define FLAG_L UINT64_C(0x0000000000200000)
-#define FLAG_M UINT64_C(0x0000000000400000)
-#define FLAG_N UINT64_C(0x0000000000800000)
-#define FLAG_O UINT64_C(0x0000000001000000)
-#define FLAG_P UINT64_C(0x0000000002000000)
-#define FLAG_Q UINT64_C(0x0000000004000000)
-#define FLAG_R UINT64_C(0x0000000008000000)
-#define FLAG_S UINT64_C(0x0000000010000000)
-#define FLAG_T UINT64_C(0x0000000020000000)
-#define FLAG_U UINT64_C(0x0000000040000000)
-#define FLAG_V UINT64_C(0x0000000080000000)
-#define FLAG_W UINT64_C(0x0000000100000000)
-#define FLAG_X UINT64_C(0x0000000200000000)
-#define FLAG_Y UINT64_C(0x0000000400000000)
-#define FLAG_Z UINT64_C(0x0000000800000000)
-#define FLAG_a UINT64_C(0x0000001000000000)
-#define FLAG_b UINT64_C(0x0000002000000000)
-#define FLAG_c UINT64_C(0x0000004000000000)
-#define FLAG_d UINT64_C(0x0000008000000000)
-#define FLAG_e UINT64_C(0x0000010000000000)
-#define FLAG_f UINT64_C(0x0000020000000000)
-#define FLAG_g UINT64_C(0x0000040000000000)
-#define FLAG_h UINT64_C(0x0000080000000000)
-#define FLAG_i UINT64_C(0x0000100000000000)
-#define FLAG_j UINT64_C(0x0000200000000000)
-#define FLAG_k UINT64_C(0x0000400000000000)
-#define FLAG_l UINT64_C(0x0000800000000000)
-#define FLAG_m UINT64_C(0x0001000000000000)
-#define FLAG_n UINT64_C(0x0002000000000000)
-#define FLAG_o UINT64_C(0x0004000000000000)
-#define FLAG_p UINT64_C(0x0008000000000000)
-#define FLAG_q UINT64_C(0x0010000000000000)
-#define FLAG_r UINT64_C(0x0020000000000000)
-#define FLAG_s UINT64_C(0x0040000000000000)
-#define FLAG_t UINT64_C(0x0080000000000000)
-#define FLAG_u UINT64_C(0x0100000000000000)
-#define FLAG_v UINT64_C(0x0200000000000000)
-#define FLAG_w UINT64_C(0x0400000000000000)
-#define FLAG_x UINT64_C(0x0800000000000000)
-#define FLAG_y UINT64_C(0x1000000000000000)
-#define FLAG_z UINT64_C(0x2000000000000000)
+#define FLAG_CHAR_LENGTH 12 // Divisible by 3 or == get appended
+#define FLAG_PRINT_LENGTH 20 // (char length * 4) / 3 + 4
 
-#define BIG_SWAMP(x)          (x->flags & FLAG_b)
-#define CURSED_PRINCESS(x)    (x->flags & FLAG_c)
-#define RANDOM_ENEMY_DROPS(x) (x->flags & FLAG_d)
-#define RANDOM_ENEMY_STATS(x) (x->flags & FLAG_e)
-#define NO_SCREEN_FLASH(x)    (x->flags & FLAG_f)
-#define CONSISTENT_STATS(x)   (x->flags & FLAG_g)
-#define THREES_COMPANY(x)     (x->flags & FLAG_h)
-#define INVISIBLE_HERO(x)     (x->flags & FLAG_i)
-#define NOIR_MODE(x)          (x->flags & FLAG_j)
-#define NO_KEYS(x)            (x->flags & FLAG_k)
-#define SCARED_SLIMES(x)      (x->flags & FLAG_l)
-#define MODERN_SPELLS(x)      (x->flags & FLAG_m)
-#define NO_NUMBERS(x)         (x->flags & FLAG_n)
-#define OPEN_CHARLOCK(x)      (x->flags & FLAG_o)
-#define PERMANENT_REPEL(x)    (x->flags & FLAG_p)
-#define INVISIBLE_NPCS(x)     (x->flags & FLAG_q)
-#define REPEL_IN_DUNGEONS(x)  (x->flags & FLAG_r)
-#define SHORT_CHARLOCK(x)     (x->flags & FLAG_s)
-#define FAST_TEXT(x)          (x->flags & FLAG_t)
-#define NO_HURTMORE(x)        (x->flags & FLAG_u)
-#define RANDOM_PRICES(x)      (x->flags & FLAG_w)
-#define RANDOM_XP_REQS(x)     (x->flags & FLAG_x)
-#define PERMANENT_TORCH(x)    (x->flags & FLAG_y)
-#define SHUFFLE_CHESTS(x)     (x->flags & FLAG_C)
-#define DEATH_NECKLACE(x)     (x->flags & FLAG_D)
-#define FAST_XP(x)            (x->flags & FLAG_F)
-#define RANDOMIZE_GROWTH(x)   (x->flags & FLAG_G)
-#define SPEED_HACKS(x)        (x->flags & FLAG_H)
-#define RANDOMIZE_MUSIC(x)    (x->flags & FLAG_K)
-#define RANDOM_MAP(x)         (x->flags & FLAG_M)
-#define RANDOMIZE_PATTERNS(x) (x->flags & FLAG_P)
-#define DISABLE_MUSIC(x)      (x->flags & FLAG_Q)
-#define MENU_WRAP(x)          (x->flags & FLAG_R)
-#define RANDOMIZE_SPELLS(x)   (x->flags & FLAG_S)
-#define TORCH_IN_BATTLE(x)    (x->flags & FLAG_T)
-#define VERY_FAST_XP(x)       (x->flags & FLAG_V)
-#define RANDOMIZE_SHOPS(x)    (x->flags & FLAG_W)
-#define HEAL_HURT_B4_MORE(x)  (x->flags & FLAG_Y)
-#define RANDOMIZE_ZONES(x)    (x->flags & FLAG_Z)
+#define BIG_SWAMP_OFFSET 22
+#define CURSED_PRINCESS_OFFSET 64
+#define RANDOM_ENEMY_DROPS_OFFSET 36
+#define RANDOM_ENEMY_STATS_OFFSET 34
+#define NO_SCREEN_FLASH_OFFSET 76
+#define CONSISTENT_STATS_OFFSET 38
+#define THREES_COMPANY_OFFSET 66
+#define INVISIBLE_HERO_OFFSET 60
+#define NOIR_MODE_OFFSET 74
+#define NO_KEYS_OFFSET 50
+#define SCARED_SLIMES_OFFSET 40
+#define MODERN_SPELLS_OFFSET 72
+#define NO_NUMBERS_OFFSET 58
+#define OPEN_CHARLOCK_OFFSET 46
+#define PERMANENT_REPEL_OFFSET 26
+#define INVISIBLE_NPCS_OFFSET 62
+#define REPEL_IN_DUNGEONS_OFFSET 24
+#define SHORT_CHARLOCK_OFFSET 48
+#define FAST_TEXT_OFFSET 42
+#define NO_HURTMORE_OFFSET 56
+#define RANDOM_PRICES_OFFSET 12
+#define RANDOM_XP_REQS_OFFSET 14
+#define PERMANENT_TORCH_OFFSET 28
+#define SHUFFLE_CHESTS_OFFSET 0
+#define DEATH_NECKLACE_OFFSET 18
+#define RANDOMIZE_GROWTH_OFFSET 2
+#define SPEED_HACKS_OFFSET 44
+#define RANDOMIZE_MUSIC_OFFSET 68
+#define RANDOM_MAP_OFFSET 4
+#define RANDOMIZE_PATTERNS_OFFSET 30
+#define DISABLE_MUSIC_OFFSET 70
+#define MENU_WRAP_OFFSET 16
+#define RANDOMIZE_SPELLS_OFFSET 6
+#define TORCH_IN_BATTLE_OFFSET 20
+#define RANDOMIZE_SHOPS_OFFSET 10
+#define HEAL_HURT_B4_MORE_OFFSET 8
+#define RANDOMIZE_ZONES_OFFSET 32
+#define XP_LEVEL_REQS_OFFSET 52
+
+#define CHECK_ON_BIT(flags, offset) (flags[offset / 8] & 1 << (offset % 8))
+
+#define BIG_SWAMP(x)          (CHECK_ON_BIT(x->flags, BIG_SWAMP_OFFSET))
+#define CURSED_PRINCESS(x)    (CHECK_ON_BIT(x->flags, CURSED_PRINCESS_OFFSET))
+#define RANDOM_ENEMY_DROPS(x) (CHECK_ON_BIT(x->flags, RANDOM_ENEMY_DROPS_OFFSET))
+#define RANDOM_ENEMY_STATS(x) (CHECK_ON_BIT(x->flags, RANDOM_ENEMY_STATS_OFFSET))
+#define NO_SCREEN_FLASH(x)    (CHECK_ON_BIT(x->flags, NO_SCREEN_FLASH_OFFSET))
+#define CONSISTENT_STATS(x)   (CHECK_ON_BIT(x->flags, CONSISTENT_STATS_OFFSET))
+#define THREES_COMPANY(x)     (CHECK_ON_BIT(x->flags, THREES_COMPANY_OFFSET))
+#define INVISIBLE_HERO(x)     (CHECK_ON_BIT(x->flags, INVISIBLE_HERO_OFFSET))
+#define NOIR_MODE(x)          (CHECK_ON_BIT(x->flags, NOIR_MODE_OFFSET))
+#define NO_KEYS(x)            (CHECK_ON_BIT(x->flags, NO_KEYS_OFFSET))
+#define SCARED_SLIMES(x)      (CHECK_ON_BIT(x->flags, SCARED_SLIMES_OFFSET))
+#define MODERN_SPELLS(x)      (CHECK_ON_BIT(x->flags, MODERN_SPELLS_OFFSET))
+#define NO_NUMBERS(x)         (CHECK_ON_BIT(x->flags, NO_NUMBERS_OFFSET))
+#define OPEN_CHARLOCK(x)      (CHECK_ON_BIT(x->flags, OPEN_CHARLOCK_OFFSET))
+#define PERMANENT_REPEL(x)    (CHECK_ON_BIT(x->flags, PERMANENT_REPEL_OFFSET))
+#define INVISIBLE_NPCS(x)     (CHECK_ON_BIT(x->flags, INVISIBLE_NPCS_OFFSET))
+#define REPEL_IN_DUNGEONS(x)  (CHECK_ON_BIT(x->flags, REPEL_IN_DUNGEONS_OFFSET))
+#define SHORT_CHARLOCK(x)     (CHECK_ON_BIT(x->flags, SHORT_CHARLOCK_OFFSET))
+#define FAST_TEXT(x)          (CHECK_ON_BIT(x->flags, FAST_TEXT_OFFSET))
+#define NO_HURTMORE(x)        (CHECK_ON_BIT(x->flags, NO_HURTMORE_OFFSET))
+#define RANDOM_PRICES(x)      (CHECK_ON_BIT(x->flags, RANDOM_PRICES_OFFSET))
+#define RANDOM_XP_REQS(x)     (CHECK_ON_BIT(x->flags, RANDOM_XP_REQS_OFFSET))
+#define PERMANENT_TORCH(x)    (CHECK_ON_BIT(x->flags, PERMANENT_TORCH_OFFSET))
+#define SHUFFLE_CHESTS(x)     (CHECK_ON_BIT(x->flags, SHUFFLE_CHESTS_OFFSET))
+#define DEATH_NECKLACE(x)     (CHECK_ON_BIT(x->flags, DEATH_NECKLACE_OFFSET))
+#define RANDOMIZE_GROWTH(x)   (CHECK_ON_BIT(x->flags, RANDOMIZE_GROWTH_OFFSET))
+#define SPEED_HACKS(x)        (CHECK_ON_BIT(x->flags, SPEED_HACKS_OFFSET))
+#define RANDOMIZE_MUSIC(x)    (CHECK_ON_BIT(x->flags, RANDOMIZE_MUSIC_OFFSET))
+#define RANDOM_MAP(x)         (CHECK_ON_BIT(x->flags, RANDOM_MAP_OFFSET))
+#define RANDOMIZE_PATTERNS(x) (CHECK_ON_BIT(x->flags, RANDOMIZE_PATTERNS_OFFSET))
+#define DISABLE_MUSIC(x)      (CHECK_ON_BIT(x->flags, DISABLE_MUSIC_OFFSET))
+#define MENU_WRAP(x)          (CHECK_ON_BIT(x->flags, MENU_WRAP_OFFSET))
+#define RANDOMIZE_SPELLS(x)   (CHECK_ON_BIT(x->flags, RANDOMIZE_SPELLS_OFFSET))
+#define TORCH_IN_BATTLE(x)    (CHECK_ON_BIT(x->flags, TORCH_IN_BATTLE_OFFSET))
+#define RANDOMIZE_SHOPS(x)    (CHECK_ON_BIT(x->flags, RANDOMIZE_SHOPS_OFFSET))
+#define HEAL_HURT_B4_MORE(x)  (CHECK_ON_BIT(x->flags, HEAL_HURT_B4_MORE_OFFSET))
+#define RANDOMIZE_ZONES(x)    (CHECK_ON_BIT(x->flags, RANDOMIZE_ZONES_OFFSET))
+
+// These are drop-down checks that just so happens to have an exclusive bit
+// If a dropdown has 4+ options, this check needs to get more elaborate
+#define FAST_XP(x) (x->flags[XP_LEVEL_REQS_OFFSET / 8] & 1 << (XP_LEVEL_REQS_OFFSET % 8))
+#define VERY_FAST_XP(x) (x->flags[XP_LEVEL_REQS_OFFSET / 8] & 2 << (XP_LEVEL_REQS_OFFSET % 8))
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -135,9 +119,10 @@ extern "C" {
  * @param rom An uninitialized dw_rom
  * @param input_file The file to read the rom data from
  * @param flags The flags received from the user.
+ * @param final_flags The flags after randomization from the original flags.
  * @return A boolean indicating whether initialization was sucessful
  */
-BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags);
+BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags, char *final_flags);
 
 /**
  * Randomizes a Dragon Warrior rom file

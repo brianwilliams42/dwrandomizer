@@ -24,12 +24,6 @@ extern "C" {
 
 #define TAB_COUNT 7
 
-struct configuration {
-    char input_file[1024];
-    char output_dir[1024];
-    char flags[64];
-};
-
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -53,9 +47,9 @@ private:
     void setFlags(QString flags);
     bool saveConfig();
     bool loadConfig();
-    void addOption(char flag, QString text, int tab, int x, int y);
-    void addOption(char flag, QString text, QString requires,
-        QString excluded_by, int tab, int x, int y);
+    void addOption(QString text, int tab, int x, int y, int flagoffset);
+    void addOption(QString text, QString requires,
+        QString excluded_by, int tab, int x, int y, int flagoffset);
     void addLabel(QString text, int tab, int x, int y);
     void placeWidget(QWidget *widget, int tab, int x, int y);
 
@@ -74,6 +68,8 @@ private:
     QPushButton *goButton;
     QGridLayout *optionGrids[TAB_COUNT];
     QWidget *tabContents[TAB_COUNT];
+    char *new_flags;    
+    
 };
 
 

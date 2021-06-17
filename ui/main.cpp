@@ -9,10 +9,9 @@
 
 int main(int argc, char *argv[])
 {
-
+    QApplication::setStyle("fusion");
     QApplication dwr_ui(argc, argv);
     dwr_ui.setFont(QFont("Arial", 11));
-
     MainWindow window;
 
     window.setWindowTitle("DWRandomizer " VERSION);

@@ -48,12 +48,12 @@ static int compare_enemies(const void *a, const void *b)
     return 0;
 }
 
-static double next_rank(uint64_t flags, double *rank, double min, double max)
+static double next_rank(dw_rom *rom, double *rank, double min, double max)
 {
     double newmin, newmax;
 
     /* FLAG_g is for consistent stats */
-    if (flags & FLAG_g) {
+    if (rom && CONSISTENT_STATS(rom)) {
         newmin = MAX((*rank)-3, min);
         newmax = MIN((*rank)+3, max);
         *rank = (float)mt_rand_double_ranged(newmin, newmax);
@@ -72,19 +72,17 @@ static void chaos_enemy_stats(dw_rom *rom)
 {
     int i;
     double x, rank;
-    uint64_t flags;
     dw_enemy *enemies;
 
     x = 0;
-    flags = rom->flags;
     enemies = rom->enemies;
 
     for (i=SLIME; i <= RED_DRAGON; i++) {
         rank  = pow(next_rank(0, &x, 1, 40), 4);
         enemies[i].hp  = (uint8_t)polyfit(x, &mon_hp_fac);
-        rank += pow(next_rank(flags, &x, 1, 40), 4);
+        rank += pow(next_rank(rom, &x, 1, 40), 4);
         enemies[i].str = (uint8_t)polyfit(x, &mon_str_fac);
-        rank += pow(next_rank(flags, &x, 1, 40), 4);
+        rank += pow(next_rank(rom, &x, 1, 40), 4);
         enemies[i].agi = (uint8_t)polyfit(x, &mon_agi_fac);
         rank += pow(next_rank(0, &x, 1, 40) / 3, 4);
         enemies[i].s_ss_resist = ((uint8_t)polyfit(x, &mon_sr_fac)) << 4;
@@ -105,9 +103,9 @@ static void chaos_enemy_stats(dw_rom *rom)
 
     rank = next_rank(0, &x, 28, 40);
     enemies[DRAGONLORD_1].hp  = (uint8_t)polyfit(x, &mon_hp_fac);
-    rank += next_rank(flags, &x, 28, 40);
+    rank += next_rank(rom, &x, 28, 40);
     enemies[DRAGONLORD_1].str = (uint8_t)polyfit(x, &mon_str_fac);
-    rank += next_rank(flags, &x, 28, 40);
+    rank += next_rank(rom, &x, 28, 40);
     enemies[DRAGONLORD_1].agi = (uint8_t)polyfit(x, &mon_agi_fac);
     enemies[DRAGONLORD_1].pattern = mt_rand(0, 255);
     enemies[DRAGONLORD_1].s_ss_resist &= 0xf0;
@@ -151,10 +149,10 @@ static void chaos_enemy_drops(dw_rom *rom)
             x = i;
         if (enemies[i].rank != 1.0) {
             /* noodle enemy, this has been set elsewhere */
-            next_rank(rom->flags, &x, 1, 40);
+            next_rank(rom, &x, 1, 40);
             enemies[i].xp = (uint8_t)polyfit(x, &mon_xp_fac);
         }
-        next_rank(rom->flags, &x, 1, 40);
+        next_rank(rom, &x, 1, 40);
         enemies[i].gold = (uint8_t)polyfit(x, &mon_gold_fac);
     }
 }
