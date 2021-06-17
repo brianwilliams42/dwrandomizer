@@ -1206,15 +1206,10 @@ static void update_title_screen(dw_rom *rom)
     char *f, *fo, text[33];
     char *flags;
     uint8_t *pos, *end;
+    text[32] = '\0';
 
-//    pos = rom->title_text;
-//    end = &rom->title_text + 143;
     pos = &rom->content[0x3f26];
     end = &rom->content[0x3fb5];
-    text[32] = '\0';
-    flags = rom->formatted_flags;
-    f = text;
-    fo = (char*)flag_order;
 
     printf("Updating title screen...\n");
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
@@ -1227,16 +1222,7 @@ static void update_title_screen(dw_rom *rom)
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
 
-    /* parse the flags back to a string */
-/*     while (flags) {
-        if (flags & 1) *(f++) = *fo;
-        flags >>= 1;
-        fo++;
-        if (f - text >= 32) break;
-    }
-    *f = '\0'; */
-
-    //pos = center_title_text(pos, text);          /* flags */
+    pos = center_title_text(pos, rom->formatted_flags + '\0'); 
     snprintf((char *)text, 33, "%"PRIu64, rom->seed);
 
     pos = pad_title_screen(pos, end, 15 + strlen(text)); /* blank line */
@@ -2117,7 +2103,9 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     if (!dwr_init(&rom, input_file, flags, final_flags)) {
         return 0;
     }
-
+    rom.formatted_flags = formatted_flags;
+    rom.seed = seed;
+    
     /* Clear the unused code so we can make sure it's unused */
     memset(&rom.content[0xc288], 0xff, 0xc4f5 - 0xc288);
 
