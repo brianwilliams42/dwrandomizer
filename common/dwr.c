@@ -2085,8 +2085,8 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     uint64_t crc;
     char output_file[1024];
 
-    char formatted_flags[20];
-    bscrypt_base64_encode(formatted_flags, flags, 10);
+    char formatted_flags[FLAG_PRINT_LENGTH];
+    bscrypt_base64_encode(formatted_flags, flags, FLAG_CHAR_LENGTH);
 
     snprintf(output_file, 1024, "%s/DWRando.%"PRIu64".%s.nes", output_dir, seed,
             formatted_flags);
@@ -2096,8 +2096,8 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     mt_init(seed);
     dw_rom rom;
 
-    char final_flags[10];
-    memcpy(final_flags, flags, 10);
+    char final_flags[FLAG_CHAR_LENGTH];
+    memcpy(final_flags, flags, FLAG_CHAR_LENGTH);
     randomize_flags(flags, final_flags);
 
     if (!dwr_init(&rom, input_file, flags, final_flags)) {

@@ -50,7 +50,7 @@ enum tabs {
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    this->new_flags = new char[10];
+    this->new_flags = new char[FLAG_CHAR_LENGTH];
     this->setMinimumWidth(650);
     this->mainWidget = new QWidget();
     this->gameplayWidget = new QWidget();
@@ -138,59 +138,59 @@ void MainWindow::layout()
     }
 
     /* Gameplay Options */
-    this->addOption("Shuffle Chests && Searches",         GAMEPLAY,  0, 0, 0);
-    this->addOption("Random Growth",                      GAMEPLAY,  1, 0, 2);
-    this->addOption("Random Map",                         GAMEPLAY,  2, 0, 4);
-    this->addOption("Random Spell Learning",              GAMEPLAY,  3, 0, 6);
-    this->addOption("Heal/Hurt before \"More\"", "S", "", GAMEPLAY,  4, 0, 8);
-    this->addOption("Random Weapon Shops",                GAMEPLAY,  0, 1, 10);
-    this->addOption("Random Weapon Prices",               GAMEPLAY,  1, 1, 12);
-    this->addOption("Random XP Requirements",             GAMEPLAY,  2, 1, 14);
+    this->addOption("Shuffle Chests && Searches", GAMEPLAY,  0, 0, SHUFFLE_CHESTS_OFFSET);
+    this->addOption("Random Growth",              GAMEPLAY,  1, 0, RANDOMIZE_GROWTH_OFFSET);
+    this->addOption("Random Map",                 GAMEPLAY,  2, 0, RANDOM_MAP_OFFSET);
+    this->addOption("Random Spell Learning",      GAMEPLAY,  3, 0, RANDOMIZE_SPELLS_OFFSET);
+    this->addOption("Heal/Hurt before \"More\"",  GAMEPLAY,  4, 0, HEAL_HURT_B4_MORE_OFFSET);
+    this->addOption("Random Weapon Shops",        GAMEPLAY,  0, 1, RANDOMIZE_SHOPS_OFFSET);
+    this->addOption("Random Weapon Prices",       GAMEPLAY,  1, 1, RANDOM_PRICES_OFFSET);
+    this->addOption("Random XP Requirements",     GAMEPLAY,  2, 1, RANDOM_XP_REQS_OFFSET);
 
     /* Features */
-    this->addOption("Enable Menu Wrapping",               FEATURES,  0, 0, 16);
-    this->addOption("Enable Death Necklace",              FEATURES,  1, 0, 18);
-    this->addOption("Enable Torches In Battle",           FEATURES,  2, 0, 20);
-    this->addOption("Big Swamp",                 "M", "", FEATURES,  0, 1, BIG_SWAMP_OFFSET);
-    this->addOption("Repel in dungeons",                  FEATURES,  1, 1, 24);
-    this->addOption("Permanent repel",                    FEATURES,  2, 1, 26);
-    this->addOption("Permanent torch",                    FEATURES,  3, 1, 28);
+    this->addOption("Enable Menu Wrapping",       FEATURES,  0, 0, MENU_WRAP_OFFSET);
+    this->addOption("Enable Death Necklace",      FEATURES,  1, 0, DEATH_NECKLACE_OFFSET);
+    this->addOption("Enable Torches In Battle",   FEATURES,  2, 0, TORCH_IN_BATTLE_OFFSET);
+    this->addOption("Big Swamp",                  FEATURES,  0, 1, BIG_SWAMP_OFFSET);
+    this->addOption("Repel in dungeons",          FEATURES,  1, 1, REPEL_IN_DUNGEONS_OFFSET);
+    this->addOption("Permanent repel",            FEATURES,  2, 1, PERMANENT_REPEL_OFFSET);
+    this->addOption("Permanent torch",            FEATURES,  3, 1, PERMANENT_TORCH_OFFSET);
 
     /* Monster flags */
-    this->addOption("Random Monster Abilities",           MONSTERS,  0, 0, 30);
-    this->addOption("Random Monster Zones",               MONSTERS,  1, 0, 32);
-    this->addOption("Random Monster Stats",      "Z", "", MONSTERS,  2, 0, 34);
-    this->addOption("Random Monster XP && Gold",          MONSTERS,  3, 0, 36);
-    this->addOption("Make Stats Consistent",     "e", "", MONSTERS,  4, 0, 38);
-    this->addOption("Scared Metal Slimes",       "", "e", MONSTERS,  0, 1, 40);
+    this->addOption("Random Monster Abilities",   MONSTERS,  0, 0, RANDOMIZE_PATTERNS_OFFSET);
+    this->addOption("Random Monster Zones",       MONSTERS,  1, 0, RANDOMIZE_ZONES_OFFSET);
+    this->addOption("Random Monster Stats",       MONSTERS,  2, 0, RANDOM_ENEMY_STATS_OFFSET);
+    this->addOption("Random Monster XP && Gold",  MONSTERS,  3, 0, RANDOM_ENEMY_DROPS_OFFSET);
+    this->addOption("Make Stats Consistent",      MONSTERS,  4, 0, CONSISTENT_STATS_OFFSET);
+    this->addOption("Scared Metal Slimes",        MONSTERS,  0, 1, SCARED_SLIMES_OFFSET);
 
     /* Shortcuts */
-    this->addOption("Fast Text",                          SHORTCUTS, 0, 0, 42);
-    this->addOption("Speed Hacks",                        SHORTCUTS, 1, 0, 44);
-    this->addOption("Open Charlock",                      SHORTCUTS, 2, 0, 46);
-    this->addOption("Short Charlock",                     SHORTCUTS, 3, 0, 48);
-    this->addOption("Don't Require Magic Keys",           SHORTCUTS, 4, 0, 50);
-    this->addLabel("Leveling Speed",                           SHORTCUTS, 0, 1);
-    this->placeWidget(this->levelSpeed,                        SHORTCUTS, 1, 1); // bits 52-55 
+    this->addOption("Fast Text",                  SHORTCUTS, 0, 0, FAST_TEXT_OFFSET);
+    this->addOption("Speed Hacks",                SHORTCUTS, 1, 0, SPEED_HACKS_OFFSET);
+    this->addOption("Open Charlock",              SHORTCUTS, 2, 0, OPEN_CHARLOCK_OFFSET);
+    this->addOption("Short Charlock",             SHORTCUTS, 3, 0, SHORT_CHARLOCK_OFFSET);
+    this->addOption("Don't Require Magic Keys",   SHORTCUTS, 4, 0, NO_KEYS_OFFSET);
+    this->addLabel("Leveling Speed",              SHORTCUTS, 0, 1);
+    this->placeWidget(this->levelSpeed,           SHORTCUTS, 1, 1); // bits 52-55 
 
     /* Challenge */
-    this->addOption("No Hurtmore",                        CHALLENGE, 0, 0, 56);
-    this->addOption("No Numbers",                         CHALLENGE, 1, 0, 58);
-    this->addOption("Invisible Hero",                     CHALLENGE, 2, 0, 60);
-    this->addOption("Invisible NPCs",                     CHALLENGE, 3, 0, 62);
+    this->addOption("No Hurtmore",                CHALLENGE, 0, 0, NO_HURTMORE_OFFSET);
+    this->addOption("No Numbers",                 CHALLENGE, 1, 0, NO_NUMBERS_OFFSET);
+    this->addOption("Invisible Hero",             CHALLENGE, 2, 0, INVISIBLE_HERO_OFFSET);
+    this->addOption("Invisible NPCs",             CHALLENGE, 3, 0, INVISIBLE_NPCS_OFFSET);
 
     /* Goals */
-    this->addOption("Cursed Princess",                    GOALS,     0, 0, 64);
-    this->addOption("Three's Company",                    GOALS,     1, 0, 66);
+    this->addOption("Cursed Princess",            GOALS,     0, 0, CURSED_PRINCESS_OFFSET);
+    this->addOption("Three's Company",            GOALS,     1, 0, THREES_COMPANY_OFFSET);
 
     /* Cosmetic Options */
-    this->addOption("Shuffle Music",             "", "Q", COSMETIC,  0, 0, 68);
-    this->addOption("Disable Music",             "", "K", COSMETIC,  1, 0, 70);
-    this->addOption("Modern Spell Names",                 COSMETIC,  2, 0, 72);
-    this->addOption("Noir Mode",                          COSMETIC,  3, 0, 74);
-    this->addOption("Disable Spell Flashing",             COSMETIC,  4, 0, 76);
-    this->addLabel("Player Sprite",                            COSMETIC,  0, 1);
-    this->placeWidget(this->spriteSelect,                      COSMETIC,  1, 1);  // Not in flags
+    this->addOption("Shuffle Music",              COSMETIC,  0, 0, RANDOMIZE_MUSIC_OFFSET);
+    this->addOption("Disable Music",              COSMETIC,  1, 0, DISABLE_MUSIC_OFFSET);
+    this->addOption("Modern Spell Names",         COSMETIC,  2, 0, MODERN_SPELLS_OFFSET);
+    this->addOption("Noir Mode",                  COSMETIC,  3, 0, NOIR_MODE_OFFSET);
+    this->addOption("Disable Spell Flashing",     COSMETIC,  4, 0, NO_SCREEN_FLASH_OFFSET);
+    this->addLabel("Player Sprite",               COSMETIC,  0, 1);
+    this->placeWidget(this->spriteSelect,         COSMETIC,  1, 1);  // Not in flags
 
     goLayout->addWidget(new QLabel("", this), 0, 0, 0);
     goLayout->addWidget(new QLabel("", this), 0, 1, 0);
@@ -250,7 +250,7 @@ QString MainWindow::getOptions()
     }
 
     char output[20];
-    bscrypt_base64_encode(output, new_flags, 10); 
+    bscrypt_base64_encode(output, new_flags, FLAG_CHAR_LENGTH); 
     return QString(output);
 }
 
@@ -258,7 +258,7 @@ void MainWindow::setOptions(QString flags)
 {
     QList<CheckBox*>::const_iterator i;
 
-    char temp_flags[10];
+    char temp_flags[FLAG_CHAR_LENGTH];
     QByteArray text = flags.toLocal8Bit();
     char *data = new char[text.size() + 1];
     strcpy(data, text.data());
@@ -271,7 +271,7 @@ void MainWindow::setOptions(QString flags)
     }
 
     this->levelSpeed->updateState(temp_flags);
-    memcpy(new_flags, temp_flags, 10);
+    memcpy(new_flags, temp_flags, FLAG_CHAR_LENGTH);
     this->setFlags(this->getOptions());
     delete [] data;
 }

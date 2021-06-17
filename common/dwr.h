@@ -8,7 +8,7 @@
 #include "build.h"
 #include "sprites.h"
 
-#define DWR_VERSION "2.2"
+#define DWR_VERSION "42.2"
 
 #ifdef  DWR_RELEASE
 #define VERSION DWR_VERSION
@@ -18,8 +18,11 @@
 #define VERSION DWR_VERSION " beta " BUILD
 #endif
 
-#define DEFAULT_FLAGS "VQQVAQABEAAAAA=="
+#define DEFAULT_FLAGS "VQQVAQABEAAAAAAA"
 #define CHEST_COUNT 31
+
+#define FLAG_CHAR_LENGTH 12 // Divisible by 3 or == get appended
+#define FLAG_PRINT_LENGTH 20 // (char length * 4) / 3 + 4
 
 #define BIG_SWAMP_OFFSET 22
 #define CURSED_PRINCESS_OFFSET 64
@@ -100,7 +103,7 @@
 #define RANDOMIZE_ZONES(x)    (CHECK_ON_BIT(x->flags, RANDOMIZE_ZONES_OFFSET))
 
 // These are drop-down checks that just so happens to have an exclusive bit
-// If it had 4+ options, this check needs to get more elaborate
+// If a dropdown has 4+ options, this check needs to get more elaborate
 #define FAST_XP(x) (x->flags[52 / 8] & 1 << (52 % 8))
 #define VERY_FAST_XP(x) (x->flags[52 / 8] & 2 << (52 % 8))
 
